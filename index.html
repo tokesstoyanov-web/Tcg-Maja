@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Maja's Card Vault</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css"></head><body>
+<header><h1>MAJA'S CARD VAULT</h1><div class="coins">🪙 <span id="coins">0</span></div></header>
+<nav><button data-t="shop" class="on">Packs</button><button data-t="col">Collection <span id="cnt"></span></button><button data-t="quiz">Quiz</button><button data-t="dun">Dungeon</button><button data-t="sec">Secrets 🔒</button></nav>
+<main id="m"></main>
+<div id="pl"><div class="sk"><span id="tc">0:00</span><input type="range" id="seek" min="0" max="100" step="0.1" value="0" aria-label="Song progress"><span id="td">0:00</span></div><div class="ct"><button class="btn" id="ps" aria-label="Shuffle" aria-pressed="false">🔀</button><button class="btn" id="pv" aria-label="Previous song">⏮</button><button class="btn" id="pp" aria-label="Play or pause">▶</button><button class="btn" id="pn" aria-label="Next song">⏭</button><span id="pt">No songs yet</span><input type="range" id="pvol" min="0" max="1" step="0.05" aria-label="Volume"></div></div>
+<div id="ov"><div class="row" id="rv"></div><button class="btn" id="cl">Done</button></div>
+<script src="script.js"></script></body></html>
