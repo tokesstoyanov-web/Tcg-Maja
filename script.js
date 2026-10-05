@@ -48,7 +48,9 @@ function save(){try{localStorage.setItem("maja_vault",JSON.stringify(S))}catch(e
 // Each show gets its own frame colors + shape (see the "Show themes" part of style.css). [css name, icon]
 var TH={"League":["lol","⚔️"],"Muse Dash":["muse","🎵"],"Resident Evil":["re","☣️"],"Dead by Daylight":["dbd","🔪"],"Genshin Impact":["gi","✦"],"My Dress-Up Darling":["mdd","🧵"],"Akame ga Kill!":["agk","🗡️"],"Saiki K.":["saiki","🍮"],"Panty & Stocking":["pns","🍰"],"Hunter x Hunter":["hxh","🎣"],"Alien Stage":["as","👽"],"Amazing World of Gumball":["gb","🐱"],"My Little Pony":["mlp","🦄"],"South Park":["sp","🏔️"],"Secret":["sec","🔒"]};
 var ALIAS={dottore:["dottoree"],albert:["wesker"],wakana:["gojo"],riki:["nendou"],eric:["cartman"],happy:["birthday","happybirthday"],twilight:["twilightsparkle"],starlight:["starlightglimmer"],celestia:["princesscelestia"]};
-function IMGL(n){var p=IMG[n];if(!p)return[];var b=p.replace(/^.*\//,"").replace(/\.\w+$/,""),bs=[b].concat(ALIAS[b]||[]),o=[];["images/",""].forEach(function(f){[".webp",".png",".jpg",".jpeg",".avif",".jfif",".gif"].forEach(function(x){bs.forEach(function(k){o.push(f+k+x)})})});return o}
+function IMGL(n){var p=IMG[n];if(!p)return[];var b=p.replace(/^.*\//,"").replace(/\.\w+$/,""),l=n.toLowerCase(),o=[],seen={},
+bs=[b].concat(ALIAS[b]||[],[l.replace(/\s+/g,"-"),l.replace(/\s+/g,"_"),l.replace(/\s+/g,""),b[0].toUpperCase()+b.slice(1),n]);
+["images/","Images/",""].forEach(function(f){bs.forEach(function(k){[".webp",".png",".jpg",".jpeg",".avif",".jfif"].forEach(function(x){var u=f+k+x;if(!seen[u]){seen[u]=1;o.push(u)}})})});return o}
 function imgFail(el){var l=IMGL(el.dataset.n),i=+el.dataset.i+1;if(i<l.length){el.dataset.i=i;el.src=l[i];return}el.onerror=null;var p=el.parentNode,n=el.dataset.n;
 if(p.classList.contains("art")){p.style.background="linear-gradient(135deg,hsl("+h(n)%360+",55%,32%),hsl("+(h(n)+60)%360+",60%,16%))";p.innerHTML="<span>"+n[0]+"</span>"}else el.outerHTML="<i>"+n[0]+"</i>"}
 function imgTag(n,st){return '<img alt="" src="'+IMGL(n)[0]+'" data-n="'+esc(n)+'" data-i="0" '+st+' onload="imgOk(this)" onerror="imgFail(this)">'}
@@ -162,8 +164,8 @@ if(t=="shop"){m.innerHTML='<div class="packs"><div class="pack std"><h3>Starter 
 document.getElementById("p1").onclick=function(){open(30,"C",.3)};document.getElementById("p1t").onclick=function(){open(10,"C",.3,1)};document.getElementById("p2t").onclick=function(){open(30,"E",6,1)};document.getElementById("p2").onclick=function(){open(250,"E",6)}}
 else if(t=="col"){var cell=function(c){var o=S.own[c.id];return '<div style="position:relative">'+card(c,!o)+(o>1?'<span class="qty">x'+o+'</span>':'')+tbtn(c,o)+'</div>'};
 var html='<div style="text-align:center;margin-bottom:14px"><select id="so" class="btn"><option value="show">Sort: By show</option><option value="rar">Sort: By rarity</option><option value="own">Sort: Owned first</option></select> &nbsp; ♻ '+(S.pts||0)+' trade points<div style="margin-top:10px">'+tallBtn()+'</div></div>';
-if(SORT=="show"){var gs=[];LIST.forEach(function(c){if(gs.indexOf(c.s)<0)gs.push(c.s)});gs.forEach(function(g){var l=LIST.filter(function(c){return c.s==g});var n=l.filter(function(c){return S.own[c.id]}).length;html+='<h2 style="font-size:16px;letter-spacing:.1em;margin:22px 0 10px;color:#fff4d2">'+g+' <span style="color:var(--teal)">'+n+'/'+l.length+'</span></h2><div class="grid">'+l.map(cell).join("")+'</div>'})}
-else{var ro="SLERC",l=LIST.slice().sort(function(x,y){if(SORT=="own"){var d=(S.own[y.id]?1:0)-(S.own[x.id]?1:0);if(d)return d}return ro.indexOf(x.r)-ro.indexOf(y.r)||x.id-y.id});html+='<div class="grid">'+l.map(cell).join("")+'</div>'}
+if(SORT=="show"){var gs=[];LX().forEach(function(c){if(gs.indexOf(c.s)<0)gs.push(c.s)});gs.forEach(function(g){var l=LX().filter(function(c){return c.s==g});var n=l.filter(function(c){return S.own[c.id]}).length;html+='<h2 style="font-size:16px;letter-spacing:.1em;margin:22px 0 10px;color:#fff4d2">'+g+' <span style="color:var(--teal)">'+n+'/'+l.length+'</span></h2><div class="grid">'+l.map(cell).join("")+'</div>'})}
+else{var ro="SLERC",l=LX().slice().sort(function(x,y){if(SORT=="own"){var d=(S.own[y.id]?1:0)-(S.own[x.id]?1:0);if(d)return d}return ro.indexOf(x.r)-ro.indexOf(y.r)||x.id-y.id});html+='<div class="grid">'+l.map(cell).join("")+'</div>'}
 m.innerHTML=html;var so=document.getElementById("so");so.value=SORT;so.onchange=function(){SORT=so.value;show("col")}}
 else if(t=="dun"){dungeon(m)}else if(t=="sec"){secrets(m)}else{quiz(m)}bindTrade(m)}
 // ---- DUNGEON: each boss drops one secret card (first win). Edit names/stats here. ----
@@ -259,6 +261,7 @@ seek.oninput=function(){if(au.duration){au.currentTime=seek.value/100*au.duratio
 document.addEventListener("click",function(e){if(PLAYLIST.length&&!e.target.closest("#pl")&&au.paused&&!au.currentTime)plp()},{once:true});
 // ---- TRADING: spare copies of a card can be traded for points, and points buy packs ----
 function tbtn(c,o){return o>1?'<button class="btn" style="display:block;margin:8px auto 0;font-size:12px;padding:5px 12px" data-tr="'+c.id+'">♻ Trade spare +'+PV[c.r]+'</button>':""}
+function LX(){return LIST.concat(CARDS.filter(function(c){return c.r=="S"&&S.own[c.id]}))}
 function dupInfo(){var n=0,p=0;CARDS.forEach(function(c){var o=S.own[c.id]||0;if(o>1){n+=o-1;p+=(o-1)*PV[c.r]}});return{n:n,p:p}}
 function tallBtn(){var d=dupInfo();return '<button class="btn" id="tall"'+(d.n?'':' disabled')+'>♻ Trade all spares ('+d.n+' cards = +'+d.p+' points)</button>'}
 function tradeAll(){var d=dupInfo();if(!d.n)return;if(!window.confirm("Trade all "+d.n+" spare cards for "+d.p+" trade points? You keep one copy of every card."))return;var y=window.scrollY;CARDS.forEach(function(c){var o=S.own[c.id]||0;if(o>1){S.pts=(S.pts||0)+(o-1)*PV[c.r];S.own[c.id]=1}});save();hud();show(T);window.scrollTo(0,y)}
