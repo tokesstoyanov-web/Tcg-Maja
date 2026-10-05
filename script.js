@@ -52,9 +52,20 @@ var PBM=null; // picture file name -> which card it belongs to (so one card neve
 function IMGL(n){var p=IMG[n];if(!p)return[];if(!PBM){PBM={};for(var q in IMG)PBM[IMG[q].replace(/^.*\//,"").replace(/\.\w+$/,"").toLowerCase()]=q}
 var b=p.replace(/^.*\//,"").replace(/\.\w+$/,""),l=n.toLowerCase(),o=[],seen={},
 bs=[b].concat(ALIAS[b]||[],[l.replace(/\s+/g,"-"),l.replace(/\s+/g,"_"),l.replace(/\s+/g,""),b[0].toUpperCase()+b.slice(1),n]).filter(function(k,i){var w=PBM[k.toLowerCase()];return i==0||!w||w==n});
-["images/","Images/",""].forEach(function(f){bs.forEach(function(k){[".webp",".png",".jpg",".jpeg",".avif",".jfif",".JPG",".PNG",".JPEG"].forEach(function(x){var u=f+k+x;if(!seen[u]){seen[u]=1;o.push(u)}})})});return o}
-function imgFail(el){var l=IMGL(el.dataset.n),i=+el.dataset.i+1;if(i<l.length){el.dataset.i=i;el.src=l[i];return}el.onerror=null;var p=el.parentNode,n=el.dataset.n;
+["images/","Images/",""].forEach(function(f){bs.forEach(function(k){[".webp",".png",".jpg",".jpeg",".avif",".jfif",".JPG",".PNG",".JPEG",".gif",".bmp",".heic",".HEIC",""].forEach(function(x){var u=f+k+x;if(!seen[u]){seen[u]=1;o.push(u)}})})});return o}
+// last resort when a picture is not found under any expected name: look at the real file list in the GitHub repo and pick the closest name
+var GHP=null;
+function ghFiles(){if(!GHP){var m=location.hostname.match(/^(.+)\.github\.io$/),seg=location.pathname.split("/")[1];
+if(!m)GHP=Promise.resolve([]);else{var u="https://api.github.com/repos/"+m[1]+"/"+((seg&&seg.indexOf(".")<0)?seg:m[0])+"/contents/";
+GHP=Promise.all(["images","Images",""].map(function(d){return fetch(u+d).then(function(x){return x.ok?x.json():[]}).catch(function(){return[]})})).then(function(a){return[].concat.apply([],a).filter(function(f){return f&&f.type=="file"&&!/\.(mp3|txt|md|js|css|html|json|ya?ml|gitignore)$/i.test(f.name)})})}}return GHP}
+function nrm(s){return s.replace(/^.*\//,"").replace(/\.[a-z0-9]+$/i,"").toLowerCase().replace(/[^a-z0-9]/g,"")}
+function prob(msg){if(!/[?&]check/.test(location.search))return;var b=document.getElementById("pw");if(!b){b=document.createElement("div");b.id="pw";b.style.cssText="position:fixed;top:0;left:0;right:0;z-index:30;background:#7a1020;color:#fff;padding:8px 12px;font:12px/1.5 sans-serif;max-height:35vh;overflow:auto";b.innerHTML="<b>Picture check</b> (only you see this):";document.body.appendChild(b)}b.innerHTML+="<div>⚠ "+msg+"</div>"}
+function imgGone(el){el.onerror=null;var p=el.parentNode,n=el.dataset.n;
+prob(el.dataset.fzp?"'"+n+"': found the file "+el.dataset.fzp+" but the browser cannot show that format. Save it as a JPG or PNG and upload that.":"'"+n+"': no picture file found. Expected something like "+IMG[n]+" (a png or jpg with that name is fine).");
 if(p.classList.contains("art")){p.style.background="linear-gradient(135deg,hsl("+h(n)%360+",55%,32%),hsl("+(h(n)+60)%360+",60%,16%))";p.innerHTML="<span>"+n[0]+"</span>"}else el.outerHTML="<i>"+n[0]+"</i>"}
+function imgFail(el){var n=el.dataset.n,l=IMGL(n),i=+el.dataset.i+1;if(i<l.length){el.dataset.i=i;el.src=l[i];return}
+if(!el.dataset.fz){el.dataset.fz=1;ghFiles().then(function(fs){var t=nrm(IMG[n]),best=null;fs.forEach(function(f){var m=nrm(f.name);if(m==t||(m.indexOf(t)==0&&!PBM[m])){if(!best||m.length<nrm(best.name).length)best=f}});if(best){el.dataset.fzp=best.path;el.src=best.path}else imgGone(el)});return}
+imgGone(el)}
 function imgTag(n,st){return '<img alt="" src="'+IMGL(n)[0]+'" data-n="'+esc(n)+'" data-i="0" '+st+' onload="imgOk(this)" onerror="imgFail(this)">'}
 function imgOk(el){var p=el.parentNode;if(!p.classList.contains("art"))return;p.style.setProperty("--bg","url("+el.src+")");var m=FIT[el.dataset.n]||"auto",ct=m=="contain"||(m=="auto"&&el.naturalWidth/el.naturalHeight>1.15);p.classList.toggle("fit",ct);el.style.objectFit=ct?"contain":"cover";if(ct)el.style.transform="none"}
 // Cards in this list get a cut-out of the character that pops out of the frame (needs images/<file>-cut.webp). Add names here once you have a cutout.
