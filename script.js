@@ -48,9 +48,11 @@ function save(){try{localStorage.setItem("maja_vault",JSON.stringify(S))}catch(e
 // Each show gets its own frame colors + shape (see the "Show themes" part of style.css). [css name, icon]
 var TH={"League":["lol","⚔️"],"Muse Dash":["muse","🎵"],"Resident Evil":["re","☣️"],"Dead by Daylight":["dbd","🔪"],"Genshin Impact":["gi","✦"],"My Dress-Up Darling":["mdd","🧵"],"Akame ga Kill!":["agk","🗡️"],"Saiki K.":["saiki","🍮"],"Panty & Stocking":["pns","🍰"],"Hunter x Hunter":["hxh","🎣"],"Alien Stage":["as","👽"],"Amazing World of Gumball":["gb","🐱"],"My Little Pony":["mlp","🦄"],"South Park":["sp","🏔️"],"Secret":["sec","🔒"]};
 var ALIAS={dottore:["dottoree"],albert:["wesker"],wakana:["gojo"],riki:["nendou"],eric:["cartman"],happy:["birthday","happybirthday"],twilight:["twilightsparkle"],starlight:["starlightglimmer"],celestia:["princesscelestia"]};
-function IMGL(n){var p=IMG[n];if(!p)return[];var b=p.replace(/^.*\//,"").replace(/\.\w+$/,""),l=n.toLowerCase(),o=[],seen={},
-bs=[b].concat(ALIAS[b]||[],[l.replace(/\s+/g,"-"),l.replace(/\s+/g,"_"),l.replace(/\s+/g,""),b[0].toUpperCase()+b.slice(1),n]);
-["images/","Images/",""].forEach(function(f){bs.forEach(function(k){[".webp",".png",".jpg",".jpeg",".avif",".jfif"].forEach(function(x){var u=f+k+x;if(!seen[u]){seen[u]=1;o.push(u)}})})});return o}
+var PBM=null; // picture file name -> which card it belongs to (so one card never borrows another card's picture)
+function IMGL(n){var p=IMG[n];if(!p)return[];if(!PBM){PBM={};for(var q in IMG)PBM[IMG[q].replace(/^.*\//,"").replace(/\.\w+$/,"").toLowerCase()]=q}
+var b=p.replace(/^.*\//,"").replace(/\.\w+$/,""),l=n.toLowerCase(),o=[],seen={},
+bs=[b].concat(ALIAS[b]||[],[l.replace(/\s+/g,"-"),l.replace(/\s+/g,"_"),l.replace(/\s+/g,""),b[0].toUpperCase()+b.slice(1),n]).filter(function(k,i){var w=PBM[k.toLowerCase()];return i==0||!w||w==n});
+["images/","Images/",""].forEach(function(f){bs.forEach(function(k){[".webp",".png",".jpg",".jpeg",".avif",".jfif",".JPG",".PNG",".JPEG"].forEach(function(x){var u=f+k+x;if(!seen[u]){seen[u]=1;o.push(u)}})})});return o}
 function imgFail(el){var l=IMGL(el.dataset.n),i=+el.dataset.i+1;if(i<l.length){el.dataset.i=i;el.src=l[i];return}el.onerror=null;var p=el.parentNode,n=el.dataset.n;
 if(p.classList.contains("art")){p.style.background="linear-gradient(135deg,hsl("+h(n)%360+",55%,32%),hsl("+(h(n)+60)%360+",60%,16%))";p.innerHTML="<span>"+n[0]+"</span>"}else el.outerHTML="<i>"+n[0]+"</i>"}
 function imgTag(n,st){return '<img alt="" src="'+IMGL(n)[0]+'" data-n="'+esc(n)+'" data-i="0" '+st+' onload="imgOk(this)" onerror="imgFail(this)">'}
